@@ -1,0 +1,33 @@
+### Health check
+GET http://localhost:8080/api/check/health
+
+
+### List check items
+GET http://localhost:8080/api/check/items
+
+
+### Retain heap for OOM analysis (controlled 32 MB)
+GET http://localhost:8080/api/check/oom?mb=32
+
+
+### Clear retained OOM simulation heap
+GET http://localhost:8080/api/check/oom/clear
+
+
+### Trigger real heap OOM for MAT heap dump analysis
+GET http://localhost:8080/api/check/oom
+
+
+### Activate member
+POST http://localhost:8080/api/member/activate
+Content-Type: application/json
+
+{
+  "deviceId": "device-001",
+  "modelCode": "EDU-PAD-2026",
+  "userId": "user-001"
+}
+
+
+### Export activation records to xlsx
+GET http://localhost:8080/api/member/activation-records/export?modelCode=EDU-PAD-2026&startTime=2026-01-01T00:00:00&endTime=2026-12-31T23:59:59

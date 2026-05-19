@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:asgd;MODE=MySQL;DATABASE_TO_UPPER=false;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:db/schema.sql
+
+activation:
+  campaign:
+    start: 2026-01-01T00:00:00
+    end: 2026-12-31T23:59:59
