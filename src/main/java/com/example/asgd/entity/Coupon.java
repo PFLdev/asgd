@@ -1,7 +1,7 @@
 package com.example.asgd.entity;
 
 import java.time.LocalDateTime;
-
+// 代金券
 public record Coupon(
         Long id,
         String couponName,
