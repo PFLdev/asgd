@@ -77,4 +77,46 @@ public interface CouponClaimMapper {
             )
             """)
     int insertReceiveRecord(CouponReceiveRecord record);
+
+    @Insert("""
+            INSERT INTO coupon (
+                id, coupon_name, total_stock, available_stock, status, start_time, end_time, create_time, update_time
+            )
+            VALUES (
+                #{couponId}, #{couponName}, #{totalStock}, #{availableStock}, #{status},
+                #{startTime}, #{endTime}, #{createTime}, #{updateTime}
+            )
+            """)
+    default int insertCouponForTest(
+            @Param("couponId") long couponId,
+            @Param("couponName") String couponName,
+            @Param("totalStock") int totalStock,
+            @Param("availableStock") int availableStock,
+            @Param("status") int status,
+            @Param("startTime") LocalDateTime startTime,
+            @Param("endTime") LocalDateTime endTime,
+            @Param("createTime") LocalDateTime createTime,
+            @Param("updateTime") LocalDateTime updateTime
+    ) {
+        try (java.sql.Connection connection = java.sql.DriverManager.getConnection("jdbc:h2:mem:asgd", "SA", "");
+             java.sql.PreparedStatement statement = connection.prepareStatement("""
+                     INSERT INTO coupon (
+                         id, coupon_name, total_stock, available_stock, status, start_time, end_time, create_time, update_time
+                     )
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                     """)) {
+            statement.setLong(1, couponId);
+            statement.setString(2, couponName);
+            statement.setInt(3, totalStock);
+            statement.setInt(4, availableStock);
+            statement.setInt(5, status);
+            statement.setTimestamp(6, java.sql.Timestamp.valueOf(startTime));
+            statement.setTimestamp(7, java.sql.Timestamp.valueOf(endTime));
+            statement.setTimestamp(8, java.sql.Timestamp.valueOf(createTime));
+            statement.setTimestamp(9, java.sql.Timestamp.valueOf(updateTime));
+            return statement.executeUpdate();
+        } catch (java.sql.SQLException ex) {
+            throw new IllegalStateException("Failed to insert coupon test fixture", ex);
+        }
+    }
 }
