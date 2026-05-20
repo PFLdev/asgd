@@ -29,7 +29,7 @@ class CouponClaimServiceImplTest {
     @Test
     void claimCreatesReceiveRecordAndDecrementsStock() {
         FakeMapper mapper = new FakeMapper();
-        CouponClaimServiceImpl service = new CouponClaimServiceImpl(mapper, transactionTemplate(), fixedClock());
+        CouponClaimServiceImpl service = new CouponClaimServiceImpl(mapper, transactionTemplate(mapper), fixedClock());
 
         CouponClaimResponse response = service.claim(new CouponClaimRequest(10001L, 123456L));
 
@@ -42,7 +42,7 @@ class CouponClaimServiceImplTest {
     void claimReturnsAlreadyClaimedWithoutDecrementingStockAgain() {
         FakeMapper mapper = new FakeMapper();
         mapper.receiveRecords.put("10001:123456", record(10001L, 123456L));
-        CouponClaimServiceImpl service = new CouponClaimServiceImpl(mapper, transactionTemplate(), fixedClock());
+        CouponClaimServiceImpl service = new CouponClaimServiceImpl(mapper, transactionTemplate(mapper), fixedClock());
 
         CouponClaimResponse response = service.claim(new CouponClaimRequest(10001L, 123456L));
 
@@ -54,7 +54,7 @@ class CouponClaimServiceImplTest {
     void claimReturnsSoldOutWhenStockCannotBeDecremented() {
         FakeMapper mapper = new FakeMapper();
         mapper.availableStock = 0;
-        CouponClaimServiceImpl service = new CouponClaimServiceImpl(mapper, transactionTemplate(), fixedClock());
+        CouponClaimServiceImpl service = new CouponClaimServiceImpl(mapper, transactionTemplate(mapper), fixedClock());
 
         CouponClaimResponse response = service.claim(new CouponClaimRequest(10001L, 123456L));
 
@@ -66,7 +66,7 @@ class CouponClaimServiceImplTest {
     void claimReturnsUnavailableForDisabledCoupon() {
         FakeMapper mapper = new FakeMapper();
         mapper.couponStatus = 0;
-        CouponClaimServiceImpl service = new CouponClaimServiceImpl(mapper, transactionTemplate(), fixedClock());
+        CouponClaimServiceImpl service = new CouponClaimServiceImpl(mapper, transactionTemplate(mapper), fixedClock());
 
         CouponClaimResponse response = service.claim(new CouponClaimRequest(10001L, 123456L));
 
@@ -77,7 +77,7 @@ class CouponClaimServiceImplTest {
     @Test
     void claimReturnsInvalidRequestForMissingFields() {
         FakeMapper mapper = new FakeMapper();
-        CouponClaimServiceImpl service = new CouponClaimServiceImpl(mapper, transactionTemplate(), fixedClock());
+        CouponClaimServiceImpl service = new CouponClaimServiceImpl(mapper, transactionTemplate(mapper), fixedClock());
 
         CouponClaimResponse response = service.claim(new CouponClaimRequest(null, 123456L));
 
@@ -89,7 +89,7 @@ class CouponClaimServiceImplTest {
     void duplicateKeyDuringInsertReturnsAlreadyClaimedAndTransactionRollsBack() {
         FakeMapper mapper = new FakeMapper();
         mapper.throwDuplicateOnInsert = true;
-        CouponClaimServiceImpl service = new CouponClaimServiceImpl(mapper, transactionTemplate(), fixedClock());
+        CouponClaimServiceImpl service = new CouponClaimServiceImpl(mapper, transactionTemplate(mapper), fixedClock());
 
         CouponClaimResponse response = service.claim(new CouponClaimRequest(10001L, 123456L));
 
@@ -101,8 +101,8 @@ class CouponClaimServiceImplTest {
         return Clock.fixed(Instant.parse("2026-06-10T10:00:00Z"), ZoneId.of("Asia/Shanghai"));
     }
 
-    private static TransactionTemplate transactionTemplate() {
-        return new TransactionTemplate(new RollbackAwareTransactionManager());
+    private static TransactionTemplate transactionTemplate(FakeMapper mapper) {
+        return new TransactionTemplate(new RollbackAwareTransactionManager(mapper));
     }
 
     private static CouponReceiveRecord record(long couponId, long userId) {
@@ -151,7 +151,6 @@ class CouponClaimServiceImplTest {
         public int insertReceiveRecord(CouponReceiveRecord record) {
             if (throwDuplicateOnInsert) {
                 receiveRecords.put(record.couponId() + ":" + record.userId(), record);
-                availableStock++;
                 throw new DuplicateKeyException("duplicate coupon user");
             }
             receiveRecords.put(record.couponId() + ":" + record.userId(), record);
@@ -160,8 +159,18 @@ class CouponClaimServiceImplTest {
     }
 
     private static class RollbackAwareTransactionManager implements PlatformTransactionManager {
+        private final FakeMapper mapper;
+        private int snapshotAvailableStock;
+        private Map<String, CouponReceiveRecord> snapshotReceiveRecords = new HashMap<>();
+
+        private RollbackAwareTransactionManager(FakeMapper mapper) {
+            this.mapper = mapper;
+        }
+
         @Override
         public TransactionStatus getTransaction(TransactionDefinition definition) {
+            snapshotAvailableStock = mapper.availableStock;
+            snapshotReceiveRecords = new HashMap<>(mapper.receiveRecords);
             return new SimpleTransactionStatus();
         }
 
@@ -171,6 +180,9 @@ class CouponClaimServiceImplTest {
 
         @Override
         public void rollback(TransactionStatus status) {
+            mapper.availableStock = snapshotAvailableStock;
+            mapper.receiveRecords.clear();
+            mapper.receiveRecords.putAll(snapshotReceiveRecords);
         }
     }
 }
