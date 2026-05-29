@@ -19,6 +19,13 @@ activation:
     start: ${ACTIVATION_CAMPAIGN_START:2026-06-01T00:00:00}
     end: ${ACTIVATION_CAMPAIGN_END:2026-06-30T23:59:59}
 
+member:
+  active-device-limit:
+    enabled: ${MEMBER_ACTIVE_DEVICE_LIMIT_ENABLED:true}
+    max-active-devices: ${MEMBER_ACTIVE_DEVICE_LIMIT_MAX:3}
+    lease-ttl: ${MEMBER_ACTIVE_DEVICE_LIMIT_LEASE_TTL:10m}
+    failure-strategy: ${MEMBER_ACTIVE_DEVICE_LIMIT_FAILURE_STRATEGY:fail-open}
+
 server:
   servlet:
     context-path: /
