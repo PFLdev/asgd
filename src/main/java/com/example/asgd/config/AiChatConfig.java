@@ -38,7 +38,7 @@ public class AiChatConfig {
     @Bean("openAiChatClient")
     @Lazy
     public ChatClient openAiChatClient(AiChatProperties properties) {
-        return ChatClient.create(openAiChatModel(properties.getOpenai()));
+        return ChatClient.builder(openAiChatModel(properties.getOpenai())).build();
     }
 
     @Bean("deepSeekProviderClient")
@@ -53,7 +53,7 @@ public class AiChatConfig {
     @Bean("deepSeekChatClient")
     @Lazy
     public ChatClient deepSeekChatClient(AiChatProperties properties) {
-        return ChatClient.create(deepSeekChatModel(properties.getDeepseek()));
+        return ChatClient.builder(deepSeekChatModel(properties.getDeepseek())).build();
     }
 
     private ChatModel openAiChatModel(AiChatProperties.Provider openai) {
