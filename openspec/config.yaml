@@ -1,0 +1,38 @@
+schema: spec-driven
+
+# Project context (optional)
+# This is shown to AI when creating artifacts.
+# Add your tech stack, conventions, style guides, domain knowledge, etc.
+# Example:
+#   context: |
+#     Tech stack: TypeScript, React, Node.js
+#     We use conventional commits
+#     Domain: e-commerce platform
+
+# Per-artifact rules (optional)
+# Add custom rules for specific artifacts.
+# Example:
+#   rules:
+#     proposal:
+#       - Keep proposals under 500 words
+#       - Always include a "Non-goals" section
+#     tasks:
+#       - Break tasks into chunks of max 2 hours
+context: |
+  语言：中文（简体）
+  所有产出物必须用简体中文撰写。
+  技术术语可以保留英文，例如 API、Redis、RocketMQ、MySQL、Spring Boot、Controller、Service、Mapper。
+  代码示例、类名、方法名、字段名、数据库表名、Redis Key、文件路径保持英文。
+  需求、设计说明、任务列表、异常场景、验收标准必须用中文描述。
+
+  项目技术栈：
+  - Java
+  - Spring Boot
+  - MyBatis
+  - MySQL
+  - Redis
+  - RocketMQ
+
+  开发要求：
+  - 新需求必须先生成 OpenSpec change，再修改代码。
+  - 涉及并发、幂等、事务、MQ、缓存一致性时，必须说明异常场景和兜底方案。
