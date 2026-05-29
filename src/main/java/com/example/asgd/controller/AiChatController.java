@@ -26,7 +26,12 @@ public class AiChatController {
 
     @PostMapping("/chat")
     public AiChatResponse chat(@Valid @RequestBody AiChatRequest request) {
-        return aiChatService.chat(request.provider(), request.message());
+        return aiChatService.chat(
+                request.provider(),
+                request.systemPrompt(),
+                request.userPrompt(),
+                request.message()
+        );
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

@@ -26,6 +26,19 @@ member:
     lease-ttl: ${MEMBER_ACTIVE_DEVICE_LIMIT_LEASE_TTL:10m}
     failure-strategy: ${MEMBER_ACTIVE_DEVICE_LIMIT_FAILURE_STRATEGY:fail-open}
 
+ai:
+  chat:
+    openai:
+      api-key: ${OPENAI_API_KEY:}
+      base-url: ${OPENAI_BASE_URL:https://api.openai.com}
+      completions-path: ${OPENAI_COMPLETIONS_PATH:/v1/chat/completions}
+      model: ${OPENAI_MODEL:gpt-4o-mini}
+    deepseek:
+      api-key: ${DEEPSEEK_API_KEY:}
+      base-url: ${DEEPSEEK_BASE_URL:https://api.deepseek.com}
+      completions-path: ${DEEPSEEK_COMPLETIONS_PATH:/chat/completions}
+      model: ${DEEPSEEK_MODEL:deepseek-chat}
+
 server:
   servlet:
     context-path: /

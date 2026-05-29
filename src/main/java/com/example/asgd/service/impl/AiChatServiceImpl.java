@@ -24,13 +24,20 @@ public class AiChatServiceImpl implements AiChatService {
     }
 
     @Override
-    public AiChatResponse chat(String provider, String message) {
+    public AiChatResponse chat(String provider, String systemPrompt, String userPrompt, String message) {
         String normalizedProvider = normalizeProvider(provider);
-        String normalizedMessage = message.trim();
+        String normalizedSystemPrompt = normalizeOptionalPrompt(systemPrompt);
+        String normalizedUserPrompt = normalizeUserPrompt(userPrompt, message);
 
         return switch (normalizedProvider) {
-            case "openai" -> new AiChatResponse(normalizedProvider, openAiClient.chat(normalizedMessage));
-            case "deepseek" -> new AiChatResponse(normalizedProvider, deepSeekClient.chat(normalizedMessage));
+            case "openai" -> new AiChatResponse(
+                    normalizedProvider,
+                    openAiClient.chat(normalizedSystemPrompt, normalizedUserPrompt)
+            );
+            case "deepseek" -> new AiChatResponse(
+                    normalizedProvider,
+                    deepSeekClient.chat(normalizedSystemPrompt, normalizedUserPrompt)
+            );
             default -> throw new IllegalArgumentException("Unsupported AI provider: " + normalizedProvider);
         };
     }
@@ -40,5 +47,19 @@ public class AiChatServiceImpl implements AiChatService {
             throw new IllegalArgumentException("Unsupported AI provider: " + provider);
         }
         return provider.trim().toLowerCase(Locale.ROOT);
+    }
+
+    private String normalizeOptionalPrompt(String prompt) {
+        return StringUtils.hasText(prompt) ? prompt.trim() : null;
+    }
+
+    private String normalizeUserPrompt(String userPrompt, String message) {
+        if (StringUtils.hasText(userPrompt)) {
+            return userPrompt.trim();
+        }
+        if (StringUtils.hasText(message)) {
+            return message.trim();
+        }
+        throw new IllegalArgumentException("message or userPrompt must not be blank");
     }
 }

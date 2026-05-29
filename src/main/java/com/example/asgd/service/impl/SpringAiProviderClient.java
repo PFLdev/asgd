@@ -1,7 +1,7 @@
 package com.example.asgd.service.impl;
 
 import com.example.asgd.service.AiProviderClient;
-import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.retry.NonTransientAiException;
 import org.springframework.util.StringUtils;
 
@@ -11,27 +11,31 @@ public class SpringAiProviderClient implements AiProviderClient {
 
     private final String providerName;
     private final String apiKey;
-    private final Supplier<ChatModel> chatModelFactory;
-    private ChatModel chatModel;
+    private final Supplier<ChatClient> chatClientFactory;
+    private ChatClient chatClient;
 
-    public SpringAiProviderClient(String providerName, String apiKey, Supplier<ChatModel> chatModelFactory) {
+    public SpringAiProviderClient(String providerName, String apiKey, Supplier<ChatClient> chatClientFactory) {
         this.providerName = providerName;
         this.apiKey = apiKey;
-        this.chatModelFactory = chatModelFactory;
+        this.chatClientFactory = chatClientFactory;
     }
 
     @Override
-    public String chat(String message) {
+    public String chat(String systemPrompt, String userPrompt) {
         if (!StringUtils.hasText(apiKey)) {
             throw new NonTransientAiException(providerName + " API key is not configured");
         }
-        return getChatModel().call(message);
+        ChatClient.ChatClientRequestSpec requestSpec = getChatClient().prompt();
+        if (StringUtils.hasText(systemPrompt)) {
+            requestSpec = requestSpec.system(systemPrompt.trim());
+        }
+        return requestSpec.user(userPrompt.trim()).call().content();
     }
 
-    private ChatModel getChatModel() {
-        if (chatModel == null) {
-            chatModel = chatModelFactory.get();
+    private ChatClient getChatClient() {
+        if (chatClient == null) {
+            chatClient = chatClientFactory.get();
         }
-        return chatModel;
+        return chatClient;
     }
 }
