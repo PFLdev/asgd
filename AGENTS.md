@@ -45,3 +45,17 @@ Pull requests should include a short summary, test results (`mvn test`), linked 
 ## Security & Configuration Tips
 
 Do not commit secrets or environment-specific credentials in `application.yml`. Keep production database settings externalized through environment-specific configuration.
+
+## 工作规则
+
+- 默认先阅读相关代码和文档，再开始修改。
+- 修改前先说明影响范围。
+- 只做和当前任务相关的最小改动。
+- 提交前必须运行最小验证。
+- 说明用中文，代码、命令、文件名保持英文。
+- 不要修改无关文件。
+- OpenSpec 相关文档必须使用简体中文。
+- proposal.md、design.md、tasks.md、spec.md 中的需求、设计、任务、异常场景、验收标准必须用中文描述。
+- 技术术语可以保留英文，例如 API、Redis、MySQL、RocketMQ、Spring Boot。
+- 代码、类名、方法名、字段名、文件路径保持英文。
+- 不要把 Java 代码、SQL、配置文件里的关键字翻译成中文。
