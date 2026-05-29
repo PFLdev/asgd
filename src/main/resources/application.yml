@@ -19,6 +19,26 @@ activation:
     start: ${ACTIVATION_CAMPAIGN_START:2026-06-01T00:00:00}
     end: ${ACTIVATION_CAMPAIGN_END:2026-06-30T23:59:59}
 
+member:
+  active-device-limit:
+    enabled: ${MEMBER_ACTIVE_DEVICE_LIMIT_ENABLED:true}
+    max-active-devices: ${MEMBER_ACTIVE_DEVICE_LIMIT_MAX:3}
+    lease-ttl: ${MEMBER_ACTIVE_DEVICE_LIMIT_LEASE_TTL:10m}
+    failure-strategy: ${MEMBER_ACTIVE_DEVICE_LIMIT_FAILURE_STRATEGY:fail-open}
+
+ai:
+  chat:
+    openai:
+      api-key: ${OPENAI_API_KEY:}
+      base-url: ${OPENAI_BASE_URL:https://api.openai.com}
+      completions-path: ${OPENAI_COMPLETIONS_PATH:/v1/chat/completions}
+      model: ${OPENAI_MODEL:gpt-4o-mini}
+    deepseek:
+      api-key: ${DEEPSEEK_API_KEY:}
+      base-url: ${DEEPSEEK_BASE_URL:https://api.deepseek.com}
+      completions-path: ${DEEPSEEK_COMPLETIONS_PATH:/chat/completions}
+      model: ${DEEPSEEK_MODEL:deepseek-chat}
+
 server:
   servlet:
     context-path: /

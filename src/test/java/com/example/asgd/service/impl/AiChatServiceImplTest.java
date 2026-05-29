@@ -11,44 +11,55 @@ class AiChatServiceImplTest {
 
     @Test
     void chatRoutesOpenAiProviderToOpenAiModel() {
-        AiProviderClient openAiClient = prompt -> "openai: " + prompt;
-        AiProviderClient deepSeekClient = prompt -> "deepseek: " + prompt;
+        AiProviderClient openAiClient = (systemPrompt, userPrompt) -> "openai: " + userPrompt;
+        AiProviderClient deepSeekClient = (systemPrompt, userPrompt) -> "deepseek: " + userPrompt;
         AiChatServiceImpl service = new AiChatServiceImpl(openAiClient, deepSeekClient);
 
-        AiChatResponse response = service.chat("openai", "Hello");
+        AiChatResponse response = service.chat("openai", null, null, "Hello");
 
         assertThat(response).isEqualTo(new AiChatResponse("openai", "openai: Hello"));
     }
 
     @Test
     void chatRoutesDeepSeekProviderToDeepSeekModel() {
-        AiProviderClient openAiClient = prompt -> "openai: " + prompt;
-        AiProviderClient deepSeekClient = prompt -> "deepseek: " + prompt;
+        AiProviderClient openAiClient = (systemPrompt, userPrompt) -> "openai: " + userPrompt;
+        AiProviderClient deepSeekClient = (systemPrompt, userPrompt) -> "deepseek: " + userPrompt;
         AiChatServiceImpl service = new AiChatServiceImpl(openAiClient, deepSeekClient);
 
-        AiChatResponse response = service.chat("deepseek", "Hello");
+        AiChatResponse response = service.chat("deepseek", null, null, "Hello");
 
         assertThat(response).isEqualTo(new AiChatResponse("deepseek", "deepseek: Hello"));
     }
 
     @Test
     void chatNormalizesProviderAndMessage() {
-        AiProviderClient openAiClient = prompt -> "openai: " + prompt;
-        AiProviderClient deepSeekClient = prompt -> "deepseek: " + prompt;
+        AiProviderClient openAiClient = (systemPrompt, userPrompt) -> "openai: " + userPrompt;
+        AiProviderClient deepSeekClient = (systemPrompt, userPrompt) -> "deepseek: " + userPrompt;
         AiChatServiceImpl service = new AiChatServiceImpl(openAiClient, deepSeekClient);
 
-        AiChatResponse response = service.chat(" OpenAI ", " Hello ");
+        AiChatResponse response = service.chat(" OpenAI ", " System ", null, " Hello ");
 
         assertThat(response).isEqualTo(new AiChatResponse("openai", "openai: Hello"));
     }
 
     @Test
-    void chatRejectsUnsupportedProvider() {
-        AiProviderClient openAiClient = prompt -> "openai: " + prompt;
-        AiProviderClient deepSeekClient = prompt -> "deepseek: " + prompt;
+    void chatUsesUserPromptBeforeMessageAndPassesSystemPrompt() {
+        AiProviderClient openAiClient = (systemPrompt, userPrompt) -> systemPrompt + " | " + userPrompt;
+        AiProviderClient deepSeekClient = (systemPrompt, userPrompt) -> "deepseek: " + userPrompt;
         AiChatServiceImpl service = new AiChatServiceImpl(openAiClient, deepSeekClient);
 
-        assertThatThrownBy(() -> service.chat("unknown", "Hello"))
+        AiChatResponse response = service.chat("openai", " You are concise ", " Summarize this ", "ignored");
+
+        assertThat(response).isEqualTo(new AiChatResponse("openai", "You are concise | Summarize this"));
+    }
+
+    @Test
+    void chatRejectsUnsupportedProvider() {
+        AiProviderClient openAiClient = (systemPrompt, userPrompt) -> "openai: " + userPrompt;
+        AiProviderClient deepSeekClient = (systemPrompt, userPrompt) -> "deepseek: " + userPrompt;
+        AiChatServiceImpl service = new AiChatServiceImpl(openAiClient, deepSeekClient);
+
+        assertThatThrownBy(() -> service.chat("unknown", null, null, "Hello"))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Unsupported AI provider: unknown");
     }

@@ -29,7 +29,7 @@ class AiChatControllerTest {
 
     @Test
     void chatReturnsOpenAiResponse() throws Exception {
-        given(aiChatService.chat(eq("openai"), eq("Hello")))
+        given(aiChatService.chat(eq("openai"), eq(null), eq(null), eq("Hello")))
                 .willReturn(new AiChatResponse("openai", "Hi from OpenAI"));
 
         mockMvc.perform(post("/api/ai/chat")
@@ -47,7 +47,7 @@ class AiChatControllerTest {
 
     @Test
     void chatReturnsDeepSeekResponse() throws Exception {
-        given(aiChatService.chat(eq("deepseek"), eq("Hello")))
+        given(aiChatService.chat(eq("deepseek"), eq(null), eq(null), eq("Hello")))
                 .willReturn(new AiChatResponse("deepseek", "Hi from DeepSeek"));
 
         mockMvc.perform(post("/api/ai/chat")
@@ -77,8 +77,41 @@ class AiChatControllerTest {
     }
 
     @Test
+    void chatUsesUserPromptWhenProvided() throws Exception {
+        given(aiChatService.chat(eq("openai"), eq("You are concise"), eq("Summarize this"), eq("ignored")))
+                .willReturn(new AiChatResponse("openai", "Summary"));
+
+        mockMvc.perform(post("/api/ai/chat")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "provider": "openai",
+                                  "message": "ignored",
+                                  "systemPrompt": "You are concise",
+                                  "userPrompt": "Summarize this"
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.provider").value("openai"))
+                .andExpect(jsonPath("$.content").value("Summary"));
+    }
+
+    @Test
+    void chatRejectsMissingUserPromptAndMessage() throws Exception {
+        mockMvc.perform(post("/api/ai/chat")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "provider": "openai",
+                                  "systemPrompt": "You are concise"
+                                }
+                                """))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void chatReturnsBadRequestForUnsupportedProvider() throws Exception {
-        given(aiChatService.chat(eq("unknown"), eq("Hello")))
+        given(aiChatService.chat(eq("unknown"), eq(null), eq(null), eq("Hello")))
                 .willThrow(new IllegalArgumentException("Unsupported AI provider: unknown"));
 
         mockMvc.perform(post("/api/ai/chat")
@@ -95,7 +128,7 @@ class AiChatControllerTest {
 
     @Test
     void chatReturnsServiceUnavailableWhenProviderKeyMissing() throws Exception {
-        given(aiChatService.chat(eq("openai"), eq("Hello")))
+        given(aiChatService.chat(eq("openai"), eq(null), eq(null), eq("Hello")))
                 .willThrow(new NonTransientAiException("OpenAI API key is not configured"));
 
         mockMvc.perform(post("/api/ai/chat")
