@@ -116,3 +116,43 @@ VALUES
     ('6721c3f2b24b242e7acc3e763172a5a6c0612e855dddfc7a7841790e488de786', 'EDU-PAD-2026', '2026-05-01 00:00:00', 'FAKE_DEVICE_CENTER', 1),
     ('e7072234c661e2a2067b34f9707b6e541f4913bfa635d912ebd452b40de77500', 'EDU-PAD-2026', '2026-05-01 00:00:00', 'FAKE_DEVICE_CENTER', 1)
 ON DUPLICATE KEY UPDATE model = VALUES(model), status = VALUES(status);
+
+CREATE TABLE IF NOT EXISTS coupon (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    coupon_name VARCHAR(128) NOT NULL,
+    total_stock INT NOT NULL,
+    available_stock INT NOT NULL,
+    status TINYINT NOT NULL,
+    start_time TIMESTAMP NOT NULL,
+    end_time TIMESTAMP NOT NULL,
+    create_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    KEY idx_coupon_status_time(status, start_time, end_time)
+);
+
+CREATE TABLE IF NOT EXISTS coupon_receive_record (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    coupon_id BIGINT NOT NULL,
+    user_id BIGINT NOT NULL,
+    claim_status VARCHAR(32) NOT NULL,
+    claim_time TIMESTAMP NOT NULL,
+    create_time TIMESTAMP NOT NULL,
+    update_time TIMESTAMP NOT NULL,
+    UNIQUE KEY uk_coupon_receive_coupon_user(coupon_id, user_id),
+    KEY idx_coupon_receive_user_id(user_id)
+);
+
+INSERT INTO coupon (
+    id, coupon_name, total_stock, available_stock, status, start_time, end_time
+)
+VALUES
+    (10001, 'Spring Coupon 2026', 10, 10, 1, '2026-01-01 00:00:00', '2026-12-31 23:59:59'),
+    (10002, 'Sold Out Coupon 2026', 1, 0, 1, '2026-01-01 00:00:00', '2026-12-31 23:59:59'),
+    (10003, 'Disabled Coupon 2026', 10, 10, 0, '2026-01-01 00:00:00', '2026-12-31 23:59:59')
+ON DUPLICATE KEY UPDATE
+    coupon_name = VALUES(coupon_name),
+    total_stock = VALUES(total_stock),
+    available_stock = VALUES(available_stock),
+    status = VALUES(status),
+    start_time = VALUES(start_time),
+    end_time = VALUES(end_time);
