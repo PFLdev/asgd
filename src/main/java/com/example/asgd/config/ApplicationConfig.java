@@ -8,7 +8,10 @@ import java.time.Clock;
 import java.time.ZoneId;
 
 @Configuration
-@EnableConfigurationProperties(MemberActiveDeviceLimitProperties.class)
+@EnableConfigurationProperties({
+        MemberActiveDeviceLimitProperties.class,
+        ThirdPartyCourseProperties.class
+})
 public class ApplicationConfig {
 
     @Bean

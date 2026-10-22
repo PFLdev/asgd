@@ -39,6 +39,19 @@ ai:
       completions-path: ${DEEPSEEK_COMPLETIONS_PATH:/chat/completions}
       model: ${DEEPSEEK_MODEL:deepseek-chat}
 
+third-party:
+  course:
+    jiuxuewang:
+      base-url: ${JIUXUEWANG_COURSE_BASE_URL:}
+      path: ${JIUXUEWANG_COURSE_PATH:/courses}
+      grade-param: ${JIUXUEWANG_COURSE_GRADE_PARAM:grade}
+      subject-param: ${JIUXUEWANG_COURSE_SUBJECT_PARAM:subject}
+    xiaodu:
+      base-url: ${XIAODU_COURSE_BASE_URL:}
+      path: ${XIAODU_COURSE_PATH:/courses}
+      grade-param: ${XIAODU_COURSE_GRADE_PARAM:grade}
+      subject-param: ${XIAODU_COURSE_SUBJECT_PARAM:subject}
+
 server:
   servlet:
     context-path: /

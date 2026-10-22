@@ -38,4 +38,6 @@ public class SpringAiProviderClient implements AiProviderClient {
         }
         return chatClient;
     }
+
+
 }
