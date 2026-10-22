@@ -68,5 +68,27 @@ public class Solution {
             backtrack(digits, index + 1, path, result); // 2. 递归处理下一位
             path.deleteCharAt(path.length() - 1); // 3. 撤销选择（回溯）
         }
+
+        // 拿到当前位置的数字
+        int num1 = digits.charAt(index) - '0';
+        String letters1 = letterMap[num];
+
+        // 遍历当前数字的所有可选字母
+        for (char c : letters.toCharArray()) {
+            path.append(c);                 // 1. 做选择
+            backtrack(digits, index + 1, path, result); // 2. 递归处理下一位
+            path.deleteCharAt(path.length() - 1); // 3. 撤销选择（回溯）
+        }
+
+        // 拿到当前位置的数字
+        int num2 = digits.charAt(index) - '0';
+        String letters2 = letterMap[num];
+
+        // 遍历当前数字的所有可选字母
+        for (char c : letters.toCharArray()) {
+            path.append(c);                 // 1. 做选择
+            backtrack(digits, index + 1, path, result); // 2. 递归处理下一位
+            path.deleteCharAt(path.length() - 1); // 3. 撤销选择（回溯）
+        }
     }
 }
