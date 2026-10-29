@@ -42,22 +42,6 @@ public class Solution {
             return;
         }
 
-        if (index == digits.length()) {
-            result.add(path.toString());
-            return;
-        }
-
-        if (index == digits.length()) {
-            result.add(path.toString());
-            return;
-        }
-
-        if (index == digits.length()) {
-            result.add(path.toString());
-            return;
-        }
-
-
         // 拿到当前位置的数字
         int num = digits.charAt(index) - '0';
         String letters = letterMap[num];
